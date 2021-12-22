@@ -86,7 +86,7 @@ export default {
         clearEditor() {
             if (EDITOR) {
                 EDITOR.$off("headleCancel", this.clearEditor);
-                EDITOR.$off("headleSubmit", this.addNode);
+                EDITOR.$off("headleSubmit", this.adddNode);
                 EDITOR.$off("headleSubmit", this.editNode);
                 EDITOR.$off("headleSubmit", this.addLink);
                 EDITOR.$off("headleSubmit", this.setRank);
@@ -113,6 +113,15 @@ export default {
             this.dataUpdata();
             this.clearEditor();
         },
+        addSiblingNode(e) {
+            if (this.lockStatus) return;
+            XMIND.execCommand("AppendSiblingNode", e.editorText);
+            this.$emit("addNode", {
+                data: e.editorText,
+            });
+            this.dataUpdata();
+            this.clearEditor();
+        },
         editNode(e) {
             if (this.lockStatus) return;
             XMIND.execCommand("text", e.editorText);
@@ -121,8 +130,6 @@ export default {
             this.$emit("editNode", {
                 dataAfter: e.editorText,
                 dataPre:e.nodeData.text
-                // children: node.children,
-                // parent: parent,
             });
             if (e.nodeData.image === "") {
                 XMIND.execCommand("Image", "", "");
@@ -203,6 +210,13 @@ export default {
                 EDITOR.$on("headleCancel", this.clearEditor);
                 EDITOR.$on("headleSubmit", this.addNode);
             }
+            if (e.type === "NODE_Sibling_ADD") {
+                EDITOR = editorBaseConstructor({
+                    editorType: "TEXT",
+                });
+                EDITOR.$on("headleCancel", this.clearEditor);
+                EDITOR.$on("headleSubmit", this.addSiblingNode);
+            }
             if (e.type === "NODE_EDIT") {
                 let node = XMIND.getSelectedNode();
                 if (node) {
@@ -225,8 +239,6 @@ export default {
 
                 this.$emit("removeNode", {
                     data: node.getText(),
-                    // children: node.children,
-                    // parent: parent,
                 });
                 XMIND.execCommand("RemoveNode");
                 this.dataUpdata();
@@ -279,8 +291,14 @@ export default {
                     menulist: [
                         {
                             icon: "icon-folder-add",
-                            name: "添加节点",
+                            name: "添加子节点",
                             type: "NODE_ADD",
+                            data: {},
+                        },
+                        {
+                            icon: "icon-folder-add",
+                            name: "添加同级节点",
+                            type: "NODE_Sibling_ADD",
                             data: {},
                         },
                         {
@@ -344,12 +362,28 @@ export default {
             }
         },
         keyupEvent(e) {
+            console.log("键盘codekey:"+e.keyCode)
             if (this.lockStatus) return;
             if (contextmenuInstance) return;
             if (EDITOR) return;
             if (e.keyCode === 8 || e.keyCode === 46) {
+
+                var node = XMIND.getSelectedNode();
+                if (node) {
+                    console.log('You selected: "%s"', node.getText());
+                }
+                this.$emit("removeNode", {
+                    data: node.getText(),
+                });
                 XMIND.execCommand("RemoveNode");
                 this.dataUpdata();
+            }
+            if (e.keyCode === 13) {
+                EDITOR = editorBaseConstructor({
+                    editorType: "TEXT",
+                });
+                EDITOR.$on("headleCancel", this.clearEditor);
+                EDITOR.$on("headleSubmit", this.addSiblingNode);
             }
         },
         getNowView() {
