@@ -105,12 +105,25 @@ export default {
         addNode(e) {
             if (this.lockStatus) return;
             XMIND.execCommand("AppendChildNode", e.editorText);
+            this.$emit("addNode", {
+                data: e.editorText,
+                // children: node.children,
+                // parent: parent,
+            });
             this.dataUpdata();
             this.clearEditor();
         },
         editNode(e) {
             if (this.lockStatus) return;
             XMIND.execCommand("text", e.editorText);
+            console.log("日志打印")
+            console.log(e)
+            this.$emit("editNode", {
+                dataAfter: e.editorText,
+                dataPre:e.nodeData.text
+                // children: node.children,
+                // parent: parent,
+            });
             if (e.nodeData.image === "") {
                 XMIND.execCommand("Image", "", "");
             }
@@ -203,6 +216,18 @@ export default {
                 }
             }
             if (e.type === "NODE_DELETE") {
+                console.log("删除")
+                console.log(e)
+                var node = XMIND.getSelectedNode();
+                if (node) {
+                    console.log('You selected: "%s"', node.getText());
+                }
+
+                this.$emit("removeNode", {
+                    data: node.getText(),
+                    // children: node.children,
+                    // parent: parent,
+                });
                 XMIND.execCommand("RemoveNode");
                 this.dataUpdata();
             }
