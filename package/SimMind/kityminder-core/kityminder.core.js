@@ -7930,7 +7930,7 @@ _p[63] = {
                 init: function() {
                     this._zoomValue = 100;
                     this.setDefaultOptions({
-                        zoom: [ 10, 20, 50, 100, 200 ]
+                        zoom: [ 10, 20, 50,80,90, 100,110,120,130, 200 ]
                     });
                     setTextRendering();
                 },

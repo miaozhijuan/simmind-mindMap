@@ -59,7 +59,7 @@ export default {
     },
     data() {
         return {
-            zoom: 100,
+            zoom: 95,
             dragenable: false,
         };
     },
@@ -101,6 +101,16 @@ export default {
                 closeAllContextmenu();
                 contextmenuInstance = null;
             }
+        },
+        // Note 添加备注信息
+        addNote(e) {
+            if (this.lockStatus) return;
+            XMIND.execCommand("Note", e.editorText);
+            this.$emit("NoteChange", {
+                data: e.editorText,
+            });
+            this.dataUpdata();
+            this.clearEditor();
         },
         addNode(e) {
             if (this.lockStatus) return;
@@ -174,14 +184,14 @@ export default {
             if (e === "VIEW_REDUCE") {
                 let state = XMIND.queryCommandState("ZoomOut");
                 if (state === 0) {
-                    this.zoom -= 20;
+                    this.zoom -= 5;
                     XMIND.execCommand("ZoomOut");
                 }
             }
             if (e === "VIEW_PLUS") {
                 let state = XMIND.queryCommandState("ZoomIn");
                 if (state === 0) {
-                    this.zoom += 20;
+                    this.zoom += 5;
                     XMIND.execCommand("ZoomIn");
                 }
             }
@@ -199,6 +209,7 @@ export default {
                 data: node.data,
                 children: node.children,
                 parent: parent,
+                note:node.getData("note"),
             });
         },
         menuClick(e) {
@@ -207,13 +218,23 @@ export default {
                 EDITOR = editorBaseConstructor({
                     editorType: "TEXT",
                 });
-                EDITOR.$on("headleCancel", this.clearEditor);
-                EDITOR.$on("headleSubmit", this.addNode);
+            this.$emit("editShow");
+            EDITOR.$on("headleCancel", this.clearEditor);
+            EDITOR.$on("headleSubmit", this.addNode);
             }
             if (e.type === "NODE_Sibling_ADD") {
                 EDITOR = editorBaseConstructor({
                     editorType: "TEXT",
                 });
+
+                // // editor-text
+                // this.$nextTick(()=>{
+                //   // let id = 'input'+this.form.id; 总算成功了。果然还是stack over flow比较靠谱
+                //   el1.getElementsByClassName("editor-text")[0].focus()
+                //   // el1.getElementsByTagName('input')[0].focus()
+                // })
+
+                this.$emit("editShow");
                 EDITOR.$on("headleCancel", this.clearEditor);
                 EDITOR.$on("headleSubmit", this.addSiblingNode);
             }
@@ -378,10 +399,11 @@ export default {
                 XMIND.execCommand("RemoveNode");
                 this.dataUpdata();
             }
-            if (e.keyCode === 13) {
+            if (e.keyCode == 13 && e.ctrlKey) {
                 EDITOR = editorBaseConstructor({
                     editorType: "TEXT",
                 });
+                this.$emit("editShow");
                 EDITOR.$on("headleCancel", this.clearEditor);
                 EDITOR.$on("headleSubmit", this.addSiblingNode);
             }

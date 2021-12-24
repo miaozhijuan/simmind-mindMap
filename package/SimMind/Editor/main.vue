@@ -17,8 +17,6 @@
             class="editor-text"
             name="editor-text"
             id="editor-text"
-            cols="30"
-            rows="5"
             v-model="editorText"
         ></textarea>
         <div class="title" v-if="editorType === 'TEXT' && nodeData.image">
@@ -160,10 +158,10 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 5px 10px;
+    // padding: 5px 10px;
     align-items: center;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-    width: 240px;
+    // width: 240px;
     background-color: #fff;
     border-radius: 5px;
     z-index: 999;
@@ -246,10 +244,9 @@ export default {
     }
     .editor-text {
         width: 100%;
-        outline: none;
-        padding: 10px;
-        box-sizing: border-box;
-        border: 2px solid#FF99CC;
+        // outline: none;
+        // padding: 10px;
+        // box-sizing: border-box; border: 2px solid#FF99CC;
     }
     .btn-warper {
         display: flex;
